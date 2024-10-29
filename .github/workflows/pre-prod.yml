@@ -9,8 +9,12 @@ jobs:
   check-branch:
     runs-on: ubuntu-latest
     steps:
+      - name: Print Source and Target Branch
+        run: |
+          echo "Target Branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
       - name: Check if PR is from QA
         if: github.event.pull_request.head.ref != 'QA'
         run: |
-          echo "Pull requests to 'Pre-Prod' must come from 'QA'."
+          echo "❌ Pull requests to 'Pre-Prod' must originate from 'QA' branch."
           exit 1
