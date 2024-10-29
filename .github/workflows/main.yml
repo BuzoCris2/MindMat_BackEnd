@@ -14,7 +14,7 @@ jobs:
           echo "Target Branch: ${{ github.event.pull_request.base.ref }}"
           echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
       - name: Check if PR is from Pre-Prod
-        if: github.event.pull_request.head.ref != 'Pre-Prod'
+        if: github.event.pull_request.head.ref != 'Pre-Prod' && github.event.pull_request.base.ref == 'main'
         run: |
           echo "❌ Pull requests to 'main' must originate from 'Pre-Prod' branch."
           exit 1
