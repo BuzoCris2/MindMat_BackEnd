@@ -1,4 +1,4 @@
-name: Validate QA Origin
+name: Enforce PR from QA to Pre-Prod
 
 on:
   pull_request:
@@ -6,13 +6,11 @@ on:
       - Pre-Prod
 
 jobs:
-  check_branch:
+  check-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Check if PR is from QA
         if: github.event.pull_request.head.ref != 'QA'
         run: |
-          echo "❌ Pull requests to Pre-Prod must originate from QA branch."
+          echo "Pull requests to 'Pre-Prod' must come from 'QA'."
           exit 1
-      - name: PR is valid
-        run: echo "✅ Pull request is from QA branch."
