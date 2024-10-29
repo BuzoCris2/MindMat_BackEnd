@@ -1,0 +1,16 @@
+name: Enforce PR from QA to Pre-Prod
+
+on:
+  pull_request:
+    branches:
+      - Pre-Prod
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from QA
+        if: github.event.pull_request.head.ref != 'QA'
+        run: |
+          echo "Pull requests to 'Pre-Prod' must come from 'QA'."
+          exit 1
