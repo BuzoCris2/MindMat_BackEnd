@@ -1,4 +1,4 @@
-name: Validate PR Origin
+name: Enforce PR from Pre-Prod to Main
 
 on:
   pull_request:
@@ -6,13 +6,15 @@ on:
       - main
 
 jobs:
-  check_branch:
+  check-branch:
     runs-on: ubuntu-latest
     steps:
+      - name: Print Source and Target Branch
+        run: |
+          echo "Target Branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
       - name: Check if PR is from Pre-Prod
         if: github.event.pull_request.head.ref != 'Pre-Prod'
         run: |
-          echo "❌ Pull requests to main must originate from Pre-Prod branch."
+          echo "❌ Pull requests to 'main' must originate from 'Pre-Prod' branch."
           exit 1
-      - name: PR is valid
-        run: echo "✅ Pull request is from Pre-Prod branch."
