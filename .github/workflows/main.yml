@@ -1,20 +1,17 @@
-name: Enforce PR from Pre-Prod to Main
-
+name: Check pull request source branch
 on:
-  pull_request:
-    branches:
-      - main
-
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
 jobs:
-  check-branch:
+  check-branches:
     runs-on: ubuntu-latest
     steps:
-      - name: Print Source and Target Branch
+      - name: Check branches
         run: |
-          echo "Target Branch: ${{ github.event.pull_request.base.ref }}"
-          echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
-      - name: Check if PR is from Pre-Prod
-        if: github.event.pull_request.head.ref != 'Pre-Prod' && github.event.pull_request.base.ref == 'main'
-        run: |
-          echo "❌ Pull requests to 'main' must originate from 'Pre-Prod' branch."
-          exit 1
+          if [ ${{ github.head_ref }} != "dev" ] && [ ${{ github.base_ref }} == "main" ]; then
+            echo "Merge requests to main branch are only allowed from dev branch."
+            exit 1
+          fi
