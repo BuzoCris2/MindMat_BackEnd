@@ -11,14 +11,14 @@ public class UserAchievement {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "achievement_id", nullable = false)
+    @JoinColumn(name = "achievement_id")
     private Achievement achievement;
 
-    @Column(name = "achieved_at", nullable = false)
+    @Column(name = "achieved_at")
     private Date achievedAt;
     public Long getId() {
         return id;

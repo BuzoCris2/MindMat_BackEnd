@@ -4,6 +4,7 @@ import com.project.demo.logic.entity.game.Game;
 import com.project.demo.logic.entity.team.Team;
 import com.project.demo.logic.entity.user.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
@@ -13,13 +14,14 @@ public class TeamMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @CreationTimestamp
     @Column(updatable = false, name = "added_at")
     private Date addedAt;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
+    @JoinColumn(name = "team_id")
     private Team team;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     public Long getId() {

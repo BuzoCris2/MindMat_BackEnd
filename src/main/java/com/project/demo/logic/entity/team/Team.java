@@ -12,17 +12,17 @@ public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(length = 50, nullable = false)
+    @Column(length = 50)
     private String name;
     @Column(length = 255)
     private String description;
 
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at", nullable = false)
+    @Column(updatable = false, name = "created_at")
     private Date createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private Date updatedAt;
 
     public Long getId() {

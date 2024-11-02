@@ -15,7 +15,7 @@ public class Achievement {
     @Column(nullable = false, length = 255)
     private String description;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "game_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "game_id", referencedColumnName = "id")
     private Game game;
     @Column(nullable = false, length = 50)
     private String name;

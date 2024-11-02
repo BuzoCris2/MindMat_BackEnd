@@ -3,6 +3,7 @@ package com.project.demo.logic.entity.score;
 import com.project.demo.logic.entity.game.Game;
 import com.project.demo.logic.entity.user.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Time;
 import java.util.Date;
@@ -17,19 +18,20 @@ public class Score {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
-    @Column(name = "obtained_at", nullable = false)
+    @CreationTimestamp
+    @Column(updatable = false, name = "obtained_at")
     private Date obtainedAt;
     @Column(name = "right_answers", nullable = true)
-    private Long rightAnswers;
-    @Column(name = "stars", nullable = false)
-    private Long stars;
-    @Column(name = "time_taken", nullable = true)
+    private Integer rightAnswers;
+    @Column(name = "stars")
+    private Integer stars;
+    @Column(name = "time_taken")
     private Time timeTaken;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
-    @Column(name = "wrong_answers", nullable = true)
-    private Long wrongAnswers;
+    @Column(name = "wrong_answers")
+    private Integer wrongAnswers;
 
     public Long getId() {
         return id;
@@ -55,19 +57,19 @@ public class Score {
         this.obtainedAt = obtainedAt;
     }
 
-    public Long getRightAnswers() {
+    public Integer getRightAnswers() {
         return rightAnswers;
     }
 
-    public void setRightAnswers(Long rightAnswers) {
+    public void setRightAnswers(Integer rightAnswers) {
         this.rightAnswers = rightAnswers;
     }
 
-    public Long getStars() {
+    public Integer getStars() {
         return stars;
     }
 
-    public void setStars(Long stars) {
+    public void setStars(Integer stars) {
         this.stars = stars;
     }
 
@@ -87,11 +89,11 @@ public class Score {
         this.user = user;
     }
 
-    public Long getWrongAnswers() {
+    public Integer getWrongAnswers() {
         return wrongAnswers;
     }
 
-    public void setWrongAnswers(Long wrongAnswers) {
+    public void setWrongAnswers(Integer wrongAnswers) {
         this.wrongAnswers = wrongAnswers;
     }
 }

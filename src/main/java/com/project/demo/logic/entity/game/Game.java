@@ -11,14 +11,13 @@ import java.util.Date;
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private  Long id;
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String name;
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String description;
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private Date createdAt;
 
     @UpdateTimestamp
