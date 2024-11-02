@@ -1,5 +1,4 @@
 package com.project.demo.logic.entity.user;
-import com.project.demo.logic.entity.order.Order;
 import com.project.demo.logic.entity.rol.Role;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,51 +16,22 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private Long id;
-    @Column(nullable = false)
-    private Long active;
-
-    @Column(name = "avatar_id", nullable = false)
-    private Long avatarId;
-    @CreationTimestamp
-    @Column(updatable = false, name = "created_at", nullable = false)
-    private Date createdAt;
-    @Column(name = "deactivated_at", nullable = false)
-    private Date deactivatedAt;
-
-    public Long getActive() {
-        return active;
-    }
-
-    public void setActive(Long active) {
-        this.active = active;
-    }
-
-    public Long getAvatarId() {
-        return avatarId;
-    }
-
-    public void setAvatarId(Long avatarId) {
-        this.avatarId = avatarId;
-    }
-
-    public Date getDeactivatedAt() {
-        return deactivatedAt;
-    }
-
-    public void setDeactivatedAt(Date deactivatedAt) {
-        this.deactivatedAt = deactivatedAt;
-    }
-
+    private String name;
+    private String lastname;
     @Column(unique = true, length = 100, nullable = false)
     private String email;
-    @Column(nullable = false)
-    private String lastname;
-    @Column(nullable = false)
-    private String name;
+    private Long active;
+    @Column(name = "avatar_id")
+    private Long avatarId;
+
     @Column(nullable = false)
     private String password;
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
@@ -75,9 +45,6 @@ public class User implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
-
-    /*@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Order> orders;*/
 
     // Constructors
     public User() {}
@@ -102,7 +69,13 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+    public Long getAvatarId() {
+        return avatarId;
+    }
 
+    public void setAvatarId(Long avatarId) {
+        this.avatarId = avatarId;
+    }
     @Override
     public String getUsername() {
         return email;
@@ -123,7 +96,13 @@ public class User implements UserDetails {
     public void setName(String name) {
         this.name = name;
     }
+    public Long getActive() {
+        return active;
+    }
 
+    public void setActive(Long active) {
+        this.active = active;
+    }
     public String getLastname() {
         return lastname;
     }
@@ -168,14 +147,6 @@ public class User implements UserDetails {
     public Role getRole() {
         return role;
     }
-/*
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }*/
 
     public User setRole(Role role) {
         this.role = role;
