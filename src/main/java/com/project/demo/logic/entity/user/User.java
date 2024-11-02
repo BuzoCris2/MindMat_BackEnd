@@ -21,9 +21,9 @@ public class User implements UserDetails {
     private String lastname;
     @Column(unique = true, length = 100, nullable = false)
     private String email;
-    private Long active;
+    private Integer active;
     @Column(name = "avatar_id")
-    private Long avatarId;
+    private Integer avatarId;
 
     @Column(nullable = false)
     private String password;
@@ -69,11 +69,11 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-    public Long getAvatarId() {
+    public Integer getAvatarId() {
         return avatarId;
     }
 
-    public void setAvatarId(Long avatarId) {
+    public void setAvatarId(Integer avatarId) {
         this.avatarId = avatarId;
     }
     @Override
@@ -96,11 +96,11 @@ public class User implements UserDetails {
     public void setName(String name) {
         this.name = name;
     }
-    public Long getActive() {
+    public Integer getActive() {
         return active;
     }
 
-    public void setActive(Long active) {
+    public void setActive(Integer active) {
         this.active = active;
     }
     public String getLastname() {
