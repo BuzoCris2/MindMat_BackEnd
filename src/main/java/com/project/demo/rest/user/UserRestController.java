@@ -52,7 +52,7 @@ public class UserRestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'USER')")
     public User createUser(@RequestBody User newUser) {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
 
