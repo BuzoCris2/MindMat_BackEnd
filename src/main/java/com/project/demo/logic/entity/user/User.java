@@ -1,6 +1,7 @@
 package com.project.demo.logic.entity.user;
 import com.project.demo.logic.entity.order.Order;
 import com.project.demo.logic.entity.rol.Role;
+import com.project.demo.logic.entity.rol.RoleEnum;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -25,10 +26,9 @@ public class User implements UserDetails {
     @Column(name = "avatar_id", nullable = false)
     private Long avatarId;
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at", nullable = false)
+    @Column(updatable = false, name = "created_at", nullable = true)
     private Date createdAt;
-    @Column(name = "deactivated_at", nullable = false)
-    private Date deactivatedAt;
+
 
     public Long getActive() {
         return active;
@@ -44,14 +44,6 @@ public class User implements UserDetails {
 
     public void setAvatarId(Long avatarId) {
         this.avatarId = avatarId;
-    }
-
-    public Date getDeactivatedAt() {
-        return deactivatedAt;
-    }
-
-    public void setDeactivatedAt(Date deactivatedAt) {
-        this.deactivatedAt = deactivatedAt;
     }
 
     @Column(unique = true, length = 100, nullable = false)
@@ -73,7 +65,7 @@ public class User implements UserDetails {
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = true)
     private Role role;
 
     /*@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
