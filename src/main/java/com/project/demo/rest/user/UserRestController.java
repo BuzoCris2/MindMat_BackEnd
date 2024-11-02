@@ -62,9 +62,13 @@ public class UserRestController {
 
         var user = new User();
         user.setName(newUser.getName());
+        user.setLastname(newUser.getLastname());
         user.setEmail(newUser.getEmail());
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));
         user.setRole(optionalRole.get());
+        user.setActive(newUser.getActive());
+        user.setAvatarId(newUser.getAvatarId());
+
 
         return userRepository.save(user);
     }
