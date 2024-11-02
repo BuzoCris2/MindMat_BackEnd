@@ -1,51 +1,30 @@
-package com.project.demo.logic.entity.category;
+package com.project.demo.logic.entity.team;
 
-import com.project.demo.logic.entity.product.Product;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
-import java.util.List;
 
-
-@Table(name = "category")
 @Entity
-public class Category {
-
+@Table(name = "team")
+public class Team {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
+    @Column(length = 50, nullable = false)
     private String name;
-
     @Column(length = 255)
     private String description;
 
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
+    @Column(updatable = false, name = "created_at", nullable = false)
     private Date createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Date updatedAt;
 
-    // Relación con Producto
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Product> products;
-
-    // Aquí definimos los constructores, tanto el vacío como el que tiene parámetros (en caso de ser necesario)
-
-    public Category() {}
-
-    public Category(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
-
-    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -85,5 +64,4 @@ public class Category {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
-
 }

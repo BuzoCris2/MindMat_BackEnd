@@ -30,8 +30,8 @@ public class GameRestController {
                 .map(existingGame -> {
                     existingGame.setName(game.getName());
                     existingGame.setDescription(game.getDescription());
-                    existingGame.setImgURL(game.getImgURL());
-                    existingGame.setStatus(game.getStatus());
+                    /*existingGame.setImgURL(game.getImgURL());
+                    existingGame.setStatus(game.getStatus());*/
                     return gameRepository.save(existingGame);
                 })
                 .orElseGet(() -> {
