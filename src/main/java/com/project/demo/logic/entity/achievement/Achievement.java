@@ -1,25 +1,27 @@
-package com.project.demo.logic.entity.game;
-
+package com.project.demo.logic.entity.achievement;
+import com.project.demo.logic.entity.game.Game;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.util.Date;
-
-@Table(name = "game")
+@Table(name = "achievement")
 @Entity
-public class Game {
+public class Achievement {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private  Long id;
-    @Column(length = 50)
-    private String name;
-    @Column(length = 255)
+    @Column(nullable = false, length = 255)
     private String description;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "game_id", referencedColumnName = "id")
+    private Game game;
+    @Column(nullable = false, length = 50)
+    private String name;
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(updatable = false, name = "created_at", nullable = false)
     private Date createdAt;
-
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
@@ -31,13 +33,6 @@ public class Game {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getDescription() {
         return description;
@@ -46,6 +41,23 @@ public class Game {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -61,4 +73,5 @@ public class Game {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+
 }

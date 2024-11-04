@@ -16,8 +16,11 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true,length = 50)
+
     private String name;
+    @Column(length = 255)
+    private String description;
 
     @OneToOne
     @JoinColumn(name = "teacher_leader_id", referencedColumnName = "id", nullable = false)
@@ -70,16 +73,31 @@ public class Team {
     public List<User> getStudents() {
         return students;
     }
-
     public void setStudents(List<User> students) {
         this.students = students;
     }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 
     public Date getCreatedAt() {
         return createdAt;
     }
 
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public Date getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
