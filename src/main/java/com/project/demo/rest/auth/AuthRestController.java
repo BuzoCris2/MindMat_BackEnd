@@ -73,6 +73,8 @@ public class AuthRestController {
         if (optionalRole.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found");
         }
+        user.setActive(1);
+        user.setAvatarId(1);
         user.setRole(optionalRole.get());
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
