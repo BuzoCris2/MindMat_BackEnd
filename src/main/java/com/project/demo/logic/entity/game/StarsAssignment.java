@@ -28,7 +28,6 @@ public class StarsAssignment {
     @Column(updatable = false, name = "assigned_at")
     private Date assignedAt;
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }
