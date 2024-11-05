@@ -1,4 +1,4 @@
-package com.project.demo.logic.entity.game;
+package com.project.demo.logic.entity.team;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -6,18 +6,19 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
-@Table(name = "game")
 @Entity
-public class Game {
+@Table(name = "team")
+public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
+    private Long id;
     @Column(length = 50)
     private String name;
     @Column(length = 255)
     private String description;
+
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(updatable = false, name = "created_at")
     private Date createdAt;
 
     @UpdateTimestamp
@@ -31,6 +32,7 @@ public class Game {
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
@@ -46,6 +48,7 @@ public class Game {
     public void setDescription(String description) {
         this.description = description;
     }
+
     public Date getCreatedAt() {
         return createdAt;
     }

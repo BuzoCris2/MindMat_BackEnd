@@ -1,5 +1,4 @@
 package com.project.demo.logic.entity.user;
-import com.project.demo.logic.entity.order.Order;
 import com.project.demo.logic.entity.rol.Role;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -22,6 +21,9 @@ public class User implements UserDetails {
     private String lastname;
     @Column(unique = true, length = 100, nullable = false)
     private String email;
+    private Integer active;
+    @Column(name = "avatar_id")
+    private Integer avatarId;
 
     @Column(nullable = false)
     private String password;
@@ -43,9 +45,6 @@ public class User implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Order> orders;
 
     // Constructors
     public User() {}
@@ -70,7 +69,13 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+    public Integer getAvatarId() {
+        return avatarId;
+    }
 
+    public void setAvatarId(Integer avatarId) {
+        this.avatarId = avatarId;
+    }
     @Override
     public String getUsername() {
         return email;
@@ -91,7 +96,13 @@ public class User implements UserDetails {
     public void setName(String name) {
         this.name = name;
     }
+    public Integer getActive() {
+        return active;
+    }
 
+    public void setActive(Integer active) {
+        this.active = active;
+    }
     public String getLastname() {
         return lastname;
     }
@@ -135,14 +146,6 @@ public class User implements UserDetails {
 
     public Role getRole() {
         return role;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
     }
 
     public User setRole(Role role) {

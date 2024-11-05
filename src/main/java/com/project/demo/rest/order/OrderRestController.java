@@ -123,7 +123,7 @@ public class OrderRestController {
         Optional<Order> foundOrder = orderRepository.findById(orderId);
         if(foundOrder.isPresent()) {
             Optional<User> user = userRepository.findById(foundOrder.get().getUser().getId());
-            user.get().getOrders().remove(foundOrder.get());
+            /*user.get().getOrders().remove(foundOrder.get());*/
             orderRepository.deleteById(foundOrder.get().getId());
             return new GlobalResponseHandler().handleResponse("Order deleted successfully",
                     foundOrder.get(), HttpStatus.OK, request);
