@@ -92,7 +92,7 @@ public class UserRestController {
                 user.setPassword(passwordEncoder.encode((String) updatedUserData.get("password")));
             }
 
-            user.setActive((int) updatedUserData.get("active"));
+            user.setActive((Integer) updatedUserData.get("active"));
             user.setAvatarId((Integer) updatedUserData.get("avatarId"));
 
             // Asignación dinámica del rol
