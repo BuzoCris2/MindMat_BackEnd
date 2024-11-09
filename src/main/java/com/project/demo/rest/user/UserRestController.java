@@ -113,11 +113,67 @@ public class UserRestController {
         }
     }
 
+    @PutMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> updateAuthenticatedUser(@RequestBody Map<String, Object> updatedUserData, HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
 
+        // Actualizar los atributos básicos
+        user.setName((String) updatedUserData.get("name"));
+        user.setLastname((String) updatedUserData.get("lastname"));
+        user.setEmail((String) updatedUserData.get("email"));
 
+        // Actualizar la contraseña solo si se proporciona una nueva
+        if (updatedUserData.get("password") != null && !((String) updatedUserData.get("password")).isEmpty()) {
+            user.setPassword(passwordEncoder.encode((String) updatedUserData.get("password")));
+        }
 
+        user.setActive((Integer) updatedUserData.get("active"));
+        user.setAvatarId((Integer) updatedUserData.get("avatarId"));
 
+        userRepository.save(user);
+        return new GlobalResponseHandler().handleResponse("User profile updated successfully", user, HttpStatus.OK, request);
+    }
 
+    @PatchMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> updatePartialAuthenticatedUser(@RequestBody Map<String, Object> updates, HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "name":
+                    user.setName((String) value);
+                    break;
+                case "lastname":
+                    user.setLastname((String) value);
+                    break;
+                case "email":
+                    user.setEmail((String) value);
+                    break;
+                case "password":
+                    if (value != null && !((String) value).isEmpty()) {
+                        user.setPassword(passwordEncoder.encode((String) value));
+                    }
+                    break;
+                case "active":
+                    if (value != null) {
+                        user.setActive(Integer.parseInt(value.toString()));
+                    }
+                    break;
+                case "avatarId":
+                    if (value != null) {
+                        user.setAvatarId(Integer.parseInt(value.toString()));
+                    }
+                    break;
+            }
+        });
+
+        userRepository.save(user);
+        return new GlobalResponseHandler().handleResponse("User profile updated successfully", user, HttpStatus.OK, request);
+    }
 
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -135,9 +191,11 @@ public class UserRestController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public User authenticatedUser() {
+    public ResponseEntity<User> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(user);
     }
+
 
 }
