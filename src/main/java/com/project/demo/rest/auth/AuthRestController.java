@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -131,6 +133,17 @@ public class AuthRestController {
             return ResponseEntity.ok("Contraseña actualizada");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token inválido");
+        }
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<String> checkEmailExists(@RequestParam String email) {
+        boolean emailExists = userRepository.findByEmail(email).isPresent();
+
+        if (emailExists) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use");
+        } else {
+            return ResponseEntity.ok("Email available");
         }
     }
 
