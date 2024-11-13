@@ -27,6 +27,8 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+    @Column(name = "reset_token")
+    private String resetToken;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -128,6 +130,13 @@ public class User implements UserDetails {
         this.password = password;
     }
 
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -148,9 +157,12 @@ public class User implements UserDetails {
         return role;
     }
 
-    public User setRole(Role role) {
-        this.role = role;
+    /*public User setRole(Role role) {
+        return null;
+    }*/
 
-        return this;
+    public void setRole(Role role) {
+        this.role = role;
     }
+
 }

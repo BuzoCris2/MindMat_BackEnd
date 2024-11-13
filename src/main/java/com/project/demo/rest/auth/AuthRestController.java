@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import java.util.Map;
+import java.util.UUID;
 
 import java.util.Optional;
 
@@ -33,7 +37,8 @@ public class AuthRestController {
     @Autowired
     private RoleRepository roleRepository;
 
-
+    @Autowired
+    private JavaMailSender mailSender;
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
@@ -70,14 +75,67 @@ public class AuthRestController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
 
-        if (optionalRole.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found");
-        }
+        /*Optional<Role> userRole = roleRepository.findByName(RoleEnum.USER);
+        if (userRole.isPresent()) {
+            user.setRole(userRole.get()); // Asignar el rol al usuario
+        } else {
+            return ResponseEntity.badRequest().body("Error: Rol predeterminado 'USER' no encontrado.");
+        }*/
+
         user.setActive(1);
         user.setAvatarId(1);
         user.setRole(optionalRole.get());
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
+    }
+
+    @PostMapping("/request-password-reset")
+    public ResponseEntity<String> requestPasswordReset(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            String token = UUID.randomUUID().toString();
+            user.setResetToken(token);
+            userRepository.save(user);
+
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(user.getEmail());
+            mailMessage.setSubject("Recuperación de contraseña de aplicación MindMat");
+            mailMessage.setText(
+                    "Estimado Usuario:\n\n"+
+                    "Este correo es para cambiar tu contraseña en la aplicación MindMat.\n\n" +
+                            "Si solicitaste un cambio de contraseña, haz clic en el siguiente enlace para restablecerla:\n" +
+                            "http://localhost:4200/reset-password?token=" + token + "\n\n" +
+                            "Si no solicitaste este cambio, ignora este mensaje o ponte en contacto con el soporte.\n\n" +
+                            "Saludos,\n" +
+                            "El equipo de MindMat"
+            );
+
+            mailSender.send(mailMessage);
+            return ResponseEntity.ok("Correo enviado");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Correo no registrado");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+
+        Optional<User> userOpt = userRepository.findByResetToken(token);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setResetToken(null); // Limpiar el token después de cambiar la contraseña
+            userRepository.save(user);
+            return ResponseEntity.ok("Contraseña actualizada");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token inválido");
+        }
     }
 
 }
