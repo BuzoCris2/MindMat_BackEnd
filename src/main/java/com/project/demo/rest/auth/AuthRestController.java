@@ -75,9 +75,13 @@ public class AuthRestController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
 
-        if (optionalRole.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found");
-        }
+        /*Optional<Role> userRole = roleRepository.findByName(RoleEnum.USER);
+        if (userRole.isPresent()) {
+            user.setRole(userRole.get()); // Asignar el rol al usuario
+        } else {
+            return ResponseEntity.badRequest().body("Error: Rol predeterminado 'USER' no encontrado.");
+        }*/
+
         user.setActive(1);
         user.setAvatarId(1);
         user.setRole(optionalRole.get());

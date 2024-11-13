@@ -157,8 +157,12 @@ public class User implements UserDetails {
         return role;
     }
 
-    public User setRole(Role role) {
+    /*public User setRole(Role role) {
         return null;
+    }*/
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
 }
