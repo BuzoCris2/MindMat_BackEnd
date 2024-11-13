@@ -24,7 +24,7 @@ hs_err_pid*
 replay_pid*
 .DS_Store
 src/main/resources/application.properties
-.graddle/
+.gradle/
 .idea/
 build/tmp/
 build/classes/
@@ -42,4 +42,3 @@ build/resources/
 .gradle/8.7/gc.properties
 .gradle/vcs-1/gc.properties
 .github/workflows
-/src/main/resources/

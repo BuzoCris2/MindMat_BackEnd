@@ -1,4 +1,5 @@
 package com.project.demo.logic.entity.mathleship;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Table(name = "mathleshipGridCell")
@@ -9,9 +10,17 @@ public class GridCell {
     private Long id;
 
     private int row;
+
+    @Column(name = "columna") // Cambia "column" a "columna" o cualquier otro nombre que no sea reservado
     private char column;
+
     private int hasShip;
     private int isHit;
+
+    @ManyToOne
+    @JoinColumn(name = "ship_id")
+    @JsonBackReference
+    private Ship ship;
 
     public GridCell() {}
 
@@ -51,5 +60,11 @@ public class GridCell {
     }
     public void setIsHit(int isHit) {
         this.isHit = isHit;
+    }
+    public Ship getShip() {
+        return ship;
+    }
+    public void setShip(Ship ship) {
+        this.ship = ship;
     }
 }
