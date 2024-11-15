@@ -148,6 +148,7 @@ public class TeamController {
     }
 
     @GetMapping("/byTeacher/{teacherId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<?> getTeamsByTeacherLeader(@PathVariable Long teacherId) {
         // Buscar equipos por ID del líder docente
         List<Team> teams = teamRepository.findByTeacherLeader_Id(teacherId);
@@ -160,7 +161,12 @@ public class TeamController {
         List<Map<String, Object>> response = teams.stream()
                 .map(team -> Map.of(
                         "id", team.getId(),  // Añadir el ID del equipo
-                        "teacherLeader", Map.of("id", teacherId),
+                        "teacherLeader", Map.of(
+                                "id", team.getTeacherLeader().getId(),
+                                "name", team.getTeacherLeader().getName(),
+                                "lastname", team.getTeacherLeader().getLastname(),
+                                "email", team.getTeacherLeader().getEmail()
+                        ),
                         "members", team.getStudents().stream()
                                 .map(student -> Map.of(
                                         "id", student.getId(),
@@ -176,6 +182,21 @@ public class TeamController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/countByTeacher/{teacherId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> countTeamsByTeacherLeader(@PathVariable Long teacherId) {
+        // Buscar equipos por ID del líder docente
+        long teamCount = teamRepository.countByTeacherLeader_Id(teacherId);
+
+        if (teamCount == 0) {
+            return ResponseEntity.status(404).body("No se encontraron equipos para este docente líder.");
+        }
+
+        // Retornar el número de equipos
+        return ResponseEntity.ok(Map.of("teacherId", teacherId, "teamCount", teamCount));
+    }
+
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
