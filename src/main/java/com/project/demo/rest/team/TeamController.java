@@ -26,16 +26,30 @@ public class TeamController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<String> createTeam(@RequestBody Team team, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
 
         // Validar que el equipo tenga un docente líder asignado
-        if (team.getTeacherLeader() == null) {
+        if (team.getTeacherLeader() == null || team.getTeacherLeader().getId() == null) {
             return ResponseEntity.badRequest().body("Error: El equipo debe tener un docente líder asignado.");
         }
+
+        // Buscar al docente líder en la base de datos usando el ID
+        User teacherLeader = userRepository.findById(team.getTeacherLeader().getId())
+                .orElse(null);
+
+        if (teacherLeader == null) {
+            return ResponseEntity.badRequest().body("Error: El docente líder no existe.");
+        }
+
+        // Asignar el docente líder al equipo
+        team.setTeacherLeader(teacherLeader);
+
+        // Guardar el equipo en la base de datos
         teamRepository.save(team);
+
         return ResponseEntity.ok("Equipo creado exitosamente.");
     }
 
@@ -232,4 +246,6 @@ public class TeamController {
 
         return ResponseEntity.ok(response);
     }
+
+    
 }
