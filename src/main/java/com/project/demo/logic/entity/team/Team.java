@@ -22,7 +22,7 @@ public class Team {
     @Column(length = 255)
     private String description;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "teacher_leader_id", referencedColumnName = "id", nullable = false)
     private User teacherLeader;
 
