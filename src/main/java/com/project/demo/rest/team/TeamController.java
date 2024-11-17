@@ -28,14 +28,12 @@ public class TeamController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<Map<String, String>> createTeam(@RequestBody Team team, Authentication authentication) {
+    public ResponseEntity<String> createTeam(@RequestBody Team team, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
 
         // Validar que el equipo tenga un docente líder asignado
         if (team.getTeacherLeader() == null || team.getTeacherLeader().getId() == null) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "El equipo debe tener un docente líder asignado.");
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body("Error: El equipo debe tener un docente líder asignado.");
         }
 
         // Buscar al docente líder en la base de datos usando el ID
@@ -43,9 +41,7 @@ public class TeamController {
                 .orElse(null);
 
         if (teacherLeader == null) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "El docente líder no existe.");
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body("Error: El docente líder no existe.");
         }
 
         // Asignar el docente líder al equipo
@@ -54,11 +50,8 @@ public class TeamController {
         // Guardar el equipo en la base de datos
         teamRepository.save(team);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Equipo creado exitosamente.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("Equipo creado exitosamente.");
     }
-
 
     @PutMapping("/{id}/addStudent")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -254,5 +247,5 @@ public class TeamController {
         return ResponseEntity.ok(response);
     }
 
-
+    
 }
