@@ -181,6 +181,7 @@ public class TeamController {
         // Construir la respuesta incluyendo el id del equipo
         List<Map<String, Object>> response = teams.stream()
                 .map(team -> Map.of(
+                        "avatarId", team.getAvatarId(),
                         "id", team.getId(),  // Añadir el ID del equipo
                         "teacherLeader", Map.of(
                                 "id", team.getTeacherLeader().getId(),
@@ -231,6 +232,7 @@ public class TeamController {
         // Construir la respuesta
         List<Map<String, Object>> response = teams.stream()
                 .map(team -> Map.of(
+                        "avatarId", team.getAvatarId(),
                         "id", team.getId(),
                         "name", team.getName(),
                         "description", team.getDescription(),

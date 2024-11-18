@@ -22,6 +22,9 @@ public class Team {
     @Column(length = 255)
     private String description;
 
+    @Column(name = "avatar_id")
+    private Integer avatarId;
+
     @ManyToOne
     @JoinColumn(name = "teacher_leader_id", referencedColumnName = "id", nullable = false)
     private User teacherLeader;
@@ -84,6 +87,12 @@ public class Team {
         this.description = description;
     }
 
+    public Integer getAvatarId() {
+        return avatarId;
+    }
+    public void setAvatarId(Integer avatarId) {
+        this.avatarId = avatarId;
+    }
 
     public Date getCreatedAt() {
         return createdAt;
