@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Table(name = "game")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Entity
 public class Game {
     @Id
@@ -23,6 +24,9 @@ public class Game {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
+
+
+
 
     public Long getId() {
         return id;
