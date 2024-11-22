@@ -2,12 +2,15 @@ package com.project.demo.rest.game;
 
 import com.project.demo.logic.entity.game.Game;
 import com.project.demo.logic.entity.game.GameRepository;
+import com.project.demo.logic.entity.rol.Role;
+import com.project.demo.logic.entity.rol.RoleEnum;
 import com.project.demo.logic.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/games")
@@ -21,7 +24,6 @@ public class GameRestController {
     public List<Game> getAllGames(){
         return gameRepository.findAll();
     }
-
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")

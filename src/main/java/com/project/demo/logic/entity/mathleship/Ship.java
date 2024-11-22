@@ -1,5 +1,8 @@
 package com.project.demo.logic.entity.mathleship;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Table(name = "mathleshipShip")
@@ -13,8 +16,9 @@ public class Ship {
     private int size;
     private int hitCount;
 
-    @OneToMany
-    private List<GridCell> cellsOccupied;
+    @OneToMany(mappedBy = "ship", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<GridCell> cellsOccupied = new ArrayList<>();
 
     public Ship() {}
 

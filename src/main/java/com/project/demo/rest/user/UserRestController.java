@@ -20,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -76,47 +75,18 @@ public class UserRestController {
 
     @PutMapping("/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody Map<String, Object> updatedUserData, HttpServletRequest request) {
-        Optional<User> foundUser = userRepository.findById(userId);
-
-        if (foundUser.isPresent()) {
-            User user = foundUser.get();
-
-            // Actualizar los atributos básicos
-            user.setName((String) updatedUserData.get("name"));
-            user.setLastname((String) updatedUserData.get("lastname"));
-            user.setEmail((String) updatedUserData.get("email"));
-
-            // Actualizar la contraseña solo si se proporciona una nueva
-            if (updatedUserData.get("password") != null && !((String) updatedUserData.get("password")).isEmpty()) {
-                user.setPassword(passwordEncoder.encode((String) updatedUserData.get("password")));
-            }
-
-            user.setActive((Integer) updatedUserData.get("active"));
-            user.setAvatarId((Integer) updatedUserData.get("avatarId"));
-
-            // Asignación dinámica del rol
-            if (updatedUserData.get("role") != null) {
-                String roleName = (String) updatedUserData.get("role");
-                Optional<Role> role = roleRepository.findByName(RoleEnum.valueOf(roleName.toUpperCase()));
-                if (role.isPresent()) {
-                    user.setRole(role.get());
-                } else {
-                    return new GlobalResponseHandler().handleResponse("Invalid role provided", HttpStatus.BAD_REQUEST, request);
-                }
-            }
-
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody User user, HttpServletRequest request) {
+        Optional<User> foundOrder = userRepository.findById(userId);
+        if(foundOrder.isPresent()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             userRepository.save(user);
-            return new GlobalResponseHandler().handleResponse("User updated successfully", user, HttpStatus.OK, request);
+            return new GlobalResponseHandler().handleResponse("User updated successfully",
+                    user, HttpStatus.OK, request);
         } else {
-            return new GlobalResponseHandler().handleResponse("User id " + userId + " not found", HttpStatus.NOT_FOUND, request);
+            return new GlobalResponseHandler().handleResponse("User id " + userId + " not found"  ,
+                    HttpStatus.NOT_FOUND, request);
         }
     }
-
-
-
-
-
 
 
     @DeleteMapping("/{userId}")
