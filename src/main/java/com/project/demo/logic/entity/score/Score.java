@@ -10,7 +10,18 @@ import java.util.Date;
 
 @Entity
 @Table(name = "score")
-
+@NamedStoredProcedureQuery(
+        name = "insertScore",
+        procedureName = "insertScore",
+        parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_game_id", type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_obtained_at", type = Date.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_right_answers", type = Integer.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_time_taken", type = Time.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_wrong_answers", type = Integer.class)
+        }
+)
 public class Score {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
