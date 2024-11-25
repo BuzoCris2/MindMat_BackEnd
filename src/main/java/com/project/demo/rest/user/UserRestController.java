@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -152,6 +153,37 @@ public class UserRestController {
     public User authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
+    }
+
+    @PutMapping("/{userId}/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> updateActiveStatus(
+            @PathVariable Long userId,
+            @RequestBody Map<String, Integer> requestBody,
+            HttpServletRequest request) {
+        // Buscar al usuario por ID
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            // Obtener el nuevo valor de "active" del request
+            Integer newActiveStatus = requestBody.get("active");
+            if (newActiveStatus == null) {
+                return new GlobalResponseHandler().handleResponse(
+                        "Field 'active' is required", HttpStatus.BAD_REQUEST, request);
+            }
+
+            // Actualizar el valor de active
+            user.setActive(newActiveStatus);
+            userRepository.save(user);
+
+            return new GlobalResponseHandler().handleResponse(
+                    "User active status updated successfully", user, HttpStatus.OK, request);
+        } else {
+            return new GlobalResponseHandler().handleResponse(
+                    "User id " + userId + " not found", HttpStatus.NOT_FOUND, request);
+        }
     }
 
 }
