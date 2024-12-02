@@ -181,24 +181,24 @@ public class TeamController {
         // Construir la respuesta incluyendo el id del equipo
         List<Map<String, Object>> response = teams.stream()
                 .map(team -> Map.of(
-                        "avatarId", team.getAvatarId(),
-                        "id", team.getId(),  // Añadir el ID del equipo
-                        "teacherLeader", Map.of(
+                        "avatarId", team.getAvatarId(), // Asegúrate de que no sea nulo
+                        "id", team.getId(),
+                        "teacherLeader", team.getTeacherLeader() != null ? Map.of(
                                 "id", team.getTeacherLeader().getId(),
-                                "name", team.getTeacherLeader().getName(),
-                                "lastname", team.getTeacherLeader().getLastname(),
-                                "email", team.getTeacherLeader().getEmail()
-                        ),
-                        "members", team.getStudents().stream()
+                                "name", team.getTeacherLeader().getName() != null ? team.getTeacherLeader().getName() : "N/A",
+                                "lastname", team.getTeacherLeader().getLastname() != null ? team.getTeacherLeader().getLastname() : "N/A",
+                                "email", team.getTeacherLeader().getEmail() != null ? team.getTeacherLeader().getEmail() : "N/A"
+                        ) : Map.of(),
+                        "members", team.getStudents() != null ? team.getStudents().stream()
                                 .map(student -> Map.of(
                                         "id", student.getId(),
-                                        "name", student.getName(),
-                                        "lastname", student.getLastname(),
-                                        "email", student.getEmail()
+                                        "name", student.getName() != null ? student.getName() : "N/A",
+                                        "lastname", student.getLastname() != null ? student.getLastname() : "N/A",
+                                        "email", student.getEmail() != null ? student.getEmail() : "N/A"
                                 ))
-                                .toList(),
-                        "name", team.getName(),
-                        "description", team.getDescription()
+                                .toList() : List.of(),
+                        "name", team.getName() != null ? team.getName() : "N/A",
+                        "description", team.getDescription() != null ? team.getDescription() : "N/A"
                 ))
                 .toList();
 
