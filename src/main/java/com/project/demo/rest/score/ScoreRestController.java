@@ -39,21 +39,21 @@ public class ScoreRestController {
         newScore.getUser().setPassword(null);
         newScore.setStars(scoreRepository.insertScore(newScore.getGame().getId(), newScore.getObtainedAt(), newScore.getRightAnswers(), newScore.getTimeTaken(),newScore.getUser().getId(), newScore.getWrongAnswers()));
 
-        int stars = scoreRepository.insertScore(
+        /*int stars = scoreRepository.insertScore(
                 newScore.getGame().getId(),
                 newScore.getObtainedAt(),
                 newScore.getRightAnswers(),
                 newScore.getTimeTaken(),
                 newScore.getUser().getId(),
                 newScore.getWrongAnswers()
-        );
+        );*/
 
-        System.out.println("Stars Calculadas: " + stars);
+        //System.out.println("Stars Calculadas: " + stars);
 
         // Crear respuesta
-        Map<String, Object> response = new HashMap<>();
-        response.put("stars", stars);
-        response.put("message", "Score registrado exitosamente");
+        //Map<String, Object> response = new HashMap<>();
+        //response.put("stars", stars);
+        //response.put("message", "Score registrado exitosamente");
 
         return newScore;
     }
