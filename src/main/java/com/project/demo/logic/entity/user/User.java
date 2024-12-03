@@ -1,5 +1,6 @@
 package com.project.demo.logic.entity.user;
 import com.project.demo.logic.entity.rol.Role;
+import com.project.demo.logic.entity.user_listener.UserListener;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Table(name = "user")
 @Entity
+@EntityListeners(UserListener.class)
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

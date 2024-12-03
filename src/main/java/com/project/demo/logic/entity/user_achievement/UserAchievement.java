@@ -1,4 +1,5 @@
 package com.project.demo.logic.entity.user_achievement;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.achievement.Achievement;
 import jakarta.persistence.*;
@@ -12,10 +13,12 @@ public class UserAchievement {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "achievement_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Achievement achievement;
 
     @Column(name = "achieved_at")
