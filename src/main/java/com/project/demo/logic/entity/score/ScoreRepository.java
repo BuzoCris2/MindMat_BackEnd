@@ -22,4 +22,12 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
             @Param("p_user_id") Long userId,
             @Param("p_wrong_answers") Integer wrongAnswers
     );
+
+    @Query("SELECT s.game.id, g.name, MAX(s.stars) " +
+            "FROM Score s " +
+            "JOIN Game g ON s.game.id = g.id " +
+            "WHERE s.user.id = :userId " +
+            "GROUP BY s.game.id, g.name")
+    List<Object[]> findMaxStarsByUser(@Param("userId") Long userId);
+
 }
