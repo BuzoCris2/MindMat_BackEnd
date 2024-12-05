@@ -19,8 +19,8 @@ import java.util.Date;
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_right_answers", type = Integer.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_time_taken", type = Time.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_user_id", type = Long.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_wrong_answers", type = Integer.class),
-                @StoredProcedureParameter(mode = ParameterMode.OUT, name = "calculated_stars", type = Integer.class)
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_wrong_answers", type = Integer.class)
+                //@StoredProcedureParameter(mode = ParameterMode.OUT, name = "calculated_stars", type = Integer.class)
         }
 )
 public class Score {
