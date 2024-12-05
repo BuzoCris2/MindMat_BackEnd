@@ -186,4 +186,16 @@ public class UserRestController {
         }
     }
 
+    @GetMapping("/current")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "role", user.getRole().getName()
+        ));
+    }
+
+
 }

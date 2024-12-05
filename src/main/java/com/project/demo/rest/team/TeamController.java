@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("teams")
@@ -26,35 +28,43 @@ public class TeamController {
     @Autowired
     private UserRepository userRepository;
 
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Map<String, String>> createTeam(@RequestBody Team team, Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        Map<String, String> response = new HashMap<>();
 
-        // Validar que el equipo tenga un docente líder asignado
+        // Validar teacherLeader
         if (team.getTeacherLeader() == null || team.getTeacherLeader().getId() == null) {
-            Map<String, String> response = new HashMap<>();
             response.put("error", "El equipo debe tener un docente líder asignado.");
             return ResponseEntity.badRequest().body(response);
         }
 
-        // Buscar al docente líder en la base de datos usando el ID
+        // Buscar el docente líder
         User teacherLeader = userRepository.findById(team.getTeacherLeader().getId())
                 .orElse(null);
 
-        if (teacherLeader == null) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "El docente líder no existe.");
+        if (teacherLeader == null || !teacherLeader.getRole().getName().equalsIgnoreCase("TEACHER")) {
+            response.put("error", "El docente líder no existe o no tiene el rol adecuado.");
             return ResponseEntity.badRequest().body(response);
         }
 
-        // Asignar el docente líder al equipo
-        team.setTeacherLeader(teacherLeader);
+        // Validar estudiantes
+        if (team.getStudents() != null && !team.getStudents().isEmpty()) {
+            List<Long> studentIds = team.getStudents().stream().map(User::getId).collect(Collectors.toList());
+            List<User> validStudents = userRepository.findAllById(studentIds);
 
-        // Guardar el equipo en la base de datos
+            if (validStudents.size() != studentIds.size()) {
+                response.put("error", "Uno o más estudiantes no existen en la base de datos.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            team.setStudents(validStudents);
+        }
+
+        // Guardar el equipo
+        team.setTeacherLeader(teacherLeader);
         teamRepository.save(team);
 
-        Map<String, String> response = new HashMap<>();
         response.put("message", "Equipo creado exitosamente.");
         return ResponseEntity.ok(response);
     }
@@ -232,29 +242,28 @@ public class TeamController {
         // Construir la respuesta
         List<Map<String, Object>> response = teams.stream()
                 .map(team -> Map.of(
-                        "avatarId", team.getAvatarId(),
+                        "avatarId", team.getAvatarId() != null ? team.getAvatarId() : "N/A",
                         "id", team.getId(),
-                        "name", team.getName(),
-                        "description", team.getDescription(),
-                        "teacherLeader", Map.of(
+                        "name", team.getName() != null ? team.getName() : "Sin nombre",
+                        "description", team.getDescription() != null ? team.getDescription() : "Sin descripción",
+                        "teacherLeader", team.getTeacherLeader() != null ? Map.of(
                                 "id", team.getTeacherLeader().getId(),
-                                "name", team.getTeacherLeader().getName(),
-                                "lastname", team.getTeacherLeader().getLastname(),
-                                "email", team.getTeacherLeader().getEmail()
-                        ),
-                        "members", team.getStudents().stream()
+                                "name", team.getTeacherLeader().getName() != null ? team.getTeacherLeader().getName() : "N/A",
+                                "lastname", team.getTeacherLeader().getLastname() != null ? team.getTeacherLeader().getLastname() : "N/A",
+                                "email", team.getTeacherLeader().getEmail() != null ? team.getTeacherLeader().getEmail() : "N/A"
+                        ) : Map.of(),
+                        "members", team.getStudents() != null ? team.getStudents().stream()
                                 .map(student -> Map.of(
                                         "id", student.getId(),
-                                        "name", student.getName(),
-                                        "lastname", student.getLastname(),
-                                        "email", student.getEmail()
+                                        "name", student.getName() != null ? student.getName() : "N/A",
+                                        "lastname", student.getLastname() != null ? student.getLastname() : "N/A",
+                                        "email", student.getEmail() != null ? student.getEmail() : "N/A"
                                 ))
-                                .toList()
+                                .toList() : List.of()
                 ))
                 .toList();
 
         return ResponseEntity.ok(response);
     }
-
 
 }
