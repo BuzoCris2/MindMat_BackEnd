@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +36,8 @@ public class Team {
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
-    private List<User> students;
+    private List<User> students = new ArrayList<>(); // Inicialización como lista vacía
+
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -73,9 +75,14 @@ public class Team {
         this.teacherLeader = teacherLeader;
     }
 
+
     public List<User> getStudents() {
+        if (students == null) {
+            students = new ArrayList<>();
+        }
         return students;
     }
+
     public void setStudents(List<User> students) {
         this.students = students;
     }
