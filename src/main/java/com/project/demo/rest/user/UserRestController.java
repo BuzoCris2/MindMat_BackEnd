@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 import java.util.Map;
@@ -260,5 +262,12 @@ public class UserRestController {
         ));
     }
 
+    @GetMapping("/teachers")
+    public ResponseEntity<?> getAllTeachers() {
+        List<User> teachers = userRepository.findAll().stream()
+                .filter(user -> user.getRole().getName() == RoleEnum.ADMIN) // Comparar con RoleEnum.ADMIN
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(teachers);
+    }
 
 }
