@@ -25,8 +25,15 @@ public class Game {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    public Game() {
 
+    }
 
+    public Game(Long id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
 
     public Long getId() {
         return id;

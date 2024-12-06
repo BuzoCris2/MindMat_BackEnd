@@ -15,11 +15,11 @@ public class UserListener {
     @Autowired
     private UserAchievementRepository userAchievementRepository;
 
-    @PostPersist
+    /*@PostPersist
     public void onPostPersist(User user) {
         UserAchievement userAchievement = new UserAchievement();
         userAchievement.setUser(user);
         userAchievement.setAchievedAt(new Date());
         userAchievementRepository.save(userAchievement);
-    }
+    }*/
 }

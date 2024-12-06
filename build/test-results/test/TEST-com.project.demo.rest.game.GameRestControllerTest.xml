@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.project.demo.rest.game.GameRestControllerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2024-12-05T14:19:16" hostname="PCJUAN" time="1.201">
+  <properties/>
+  <testcase name="testAddGame()" classname="com.project.demo.rest.game.GameRestControllerTest" time="1.186"/>
+  <testcase name="testGetAllGames()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.014"/>
+  <system-out><![CDATA[08:19:17.851 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+08:19:17.853 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+08:19:17.856 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 2 ms
+08:19:18.049 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+08:19:18.049 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+08:19:18.049 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
