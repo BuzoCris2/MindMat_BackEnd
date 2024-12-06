@@ -19,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.Map;
 
 
@@ -56,40 +58,101 @@ public class UserRestController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'USER')")
-    public User createUser(@RequestBody User newUser) {
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
-
-        if (optionalRole.isEmpty()) {
-            return null;
+    public User createUser(@RequestBody Map<String, Object> requestData) {
+        // Extraer y validar los datos del JSON
+        String roleName = (String) requestData.get("role");
+        if (roleName == null || roleName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'role' es obligatorio");
         }
 
+        RoleEnum roleEnum;
+        try {
+            roleEnum = RoleEnum.valueOf(roleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol inválido: " + roleName);
+        }
+
+        Optional<Role> optionalRole = roleRepository.findByName(roleEnum);
+        if (optionalRole.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El rol especificado no existe");
+        }
+
+        // Crear el usuario basado en los datos del mapa
         var user = new User();
-        user.setName(newUser.getName());
-        user.setLastname(newUser.getLastname());
-        user.setEmail(newUser.getEmail());
-        user.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        user.setName((String) requestData.get("name"));
+        user.setLastname((String) requestData.get("lastname"));
+        user.setEmail((String) requestData.get("email"));
+        user.setPassword(passwordEncoder.encode((String) requestData.get("password")));
         user.setRole(optionalRole.get());
-        user.setActive(newUser.getActive());
-        user.setAvatarId(newUser.getAvatarId());
 
+        // Convertir valores numéricos explícitamente
+        user.setActive(Integer.valueOf(requestData.get("active").toString()));
+        user.setAvatarId(Integer.valueOf(requestData.get("avatarId").toString()));
 
+        // Guardar y devolver el usuario creado
         return userRepository.save(user);
     }
 
     @PutMapping("/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody User user, HttpServletRequest request) {
-        Optional<User> foundOrder = userRepository.findById(userId);
-        if(foundOrder.isPresent()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
-            return new GlobalResponseHandler().handleResponse("User updated successfully",
-                    user, HttpStatus.OK, request);
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody Map<String, Object> requestData, HttpServletRequest request) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+
+            // Actualizar campos según los valores del JSON
+            if (requestData.containsKey("name")) {
+                existingUser.setName((String) requestData.get("name"));
+            }
+            if (requestData.containsKey("lastname")) {
+                existingUser.setLastname((String) requestData.get("lastname"));
+            }
+            if (requestData.containsKey("email")) {
+                existingUser.setEmail((String) requestData.get("email"));
+            }
+            if (requestData.containsKey("password")) {
+                existingUser.setPassword(passwordEncoder.encode((String) requestData.get("password")));
+            }
+            if (requestData.containsKey("active")) {
+                existingUser.setActive(Integer.valueOf(requestData.get("active").toString()));
+            }
+            if (requestData.containsKey("avatarId")) {
+                existingUser.setAvatarId(Integer.valueOf(requestData.get("avatarId").toString()));
+            }
+            if (requestData.containsKey("role")) {
+                String roleName = (String) requestData.get("role");
+                try {
+                    RoleEnum roleEnum = RoleEnum.valueOf(roleName.toUpperCase());
+                    Optional<Role> optionalRole = roleRepository.findByName(roleEnum);
+                    if (optionalRole.isPresent()) {
+                        existingUser.setRole(optionalRole.get());
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El rol especificado no existe");
+                    }
+                } catch (IllegalArgumentException e) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol inválido: " + roleName);
+                }
+            }
+
+            // Guardar usuario actualizado
+            userRepository.save(existingUser);
+
+            return new GlobalResponseHandler().handleResponse(
+                    "User updated successfully",
+                    existingUser,
+                    HttpStatus.OK,
+                    request
+            );
         } else {
-            return new GlobalResponseHandler().handleResponse("User id " + userId + " not found"  ,
-                    HttpStatus.NOT_FOUND, request);
+            return new GlobalResponseHandler().handleResponse(
+                    "User id " + userId + " not found",
+                    HttpStatus.NOT_FOUND,
+                    request
+            );
         }
     }
+
 
     @PatchMapping("/me")
     @PreAuthorize("isAuthenticated()")
