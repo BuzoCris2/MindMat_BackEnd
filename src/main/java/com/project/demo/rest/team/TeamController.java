@@ -92,6 +92,36 @@ public class TeamController {
         return ResponseEntity.notFound().build();
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> updateTeam(@PathVariable Long id, @RequestBody Team updatedTeam) {
+        Optional<Team> existingTeamOptional = teamRepository.findById(id);
+
+        if (existingTeamOptional.isPresent()) {
+            Team existingTeam = existingTeamOptional.get();
+
+
+
+            existingTeam.setName(updatedTeam.getName());
+            existingTeam.setDescription(updatedTeam.getDescription());
+            existingTeam.setAvatarId(updatedTeam.getAvatarId());
+
+            if (updatedTeam.getTeacherLeader() != null && updatedTeam.getTeacherLeader().getId() != null) {
+                Optional<User> teacherLeaderOptional = userRepository.findById(updatedTeam.getTeacherLeader().getId());
+                if (teacherLeaderOptional.isPresent()) {
+                    existingTeam.setTeacherLeader(teacherLeaderOptional.get());
+                } else {
+                    return ResponseEntity.badRequest().body(Map.of("error", "El docente líder no existe."));
+                }
+            }
+
+            teamRepository.save(existingTeam);
+            return ResponseEntity.ok(Map.of("message", "Equipo actualizado correctamente."));
+        } else {
+            return ResponseEntity.status(404).body(Map.of("error", "Equipo no encontrado."));
+        }
+    }
+
     @PutMapping("/{id}/removeStudent")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<String> removeStudentFromTeam(@PathVariable Long id, @RequestBody User student, Authentication authentication) {
@@ -278,5 +308,26 @@ public class TeamController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> deleteTeam(@PathVariable Long id, Authentication authentication) {
+        Optional<Team> teamOptional = teamRepository.findById(id);
+
+        if (teamOptional.isPresent()) {
+            Team team = teamOptional.get();
+            User currentUser = (User) authentication.getPrincipal();
+
+            // Verificar permisos para eliminar el equipo
+            if (currentUser.getRole().getName() == RoleEnum.ADMIN &&
+                    !team.getTeacherLeader().getId().equals(currentUser.getId())) {
+                return ResponseEntity.status(403).body("No tienes permiso para eliminar este equipo.");
+            }
+
+            teamRepository.deleteById(id);
+            return ResponseEntity.noContent().build(); // HTTP 204: No Content
+        } else {
+            return ResponseEntity.status(404).body("Equipo no encontrado.");
+        }
+    }
 
 }
