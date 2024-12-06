@@ -34,47 +34,36 @@ public class TeamController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Map<String, String>> createTeam(@RequestBody Team team, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
-
-        if (currentUser.getRole().getName() != RoleEnum.ADMIN && currentUser.getRole().getName() != RoleEnum.SUPER_ADMIN) {
-            return ResponseEntity.status(403).body(Map.of("error", "No tienes permisos para crear equipos."));
-        }
         Map<String, String> response = new HashMap<>();
 
-        // Validar teacherLeader
-        if (team.getTeacherLeader() == null || team.getTeacherLeader().getId() == null) {
-            response.put("error", "El equipo debe tener un docente líder asignado.");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        // Buscar el docente líder
-        User teacherLeader = userRepository.findById(team.getTeacherLeader().getId())
-                .orElse(null);
-
-        if (teacherLeader == null || !teacherLeader.getRole().getName().equalsIgnoreCase("TEACHER")) {
-            response.put("error", "El docente líder no existe o no tiene el rol adecuado.");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        // Validar estudiantes
-        if (team.getStudents() != null && !team.getStudents().isEmpty()) {
-            List<Long> studentIds = team.getStudents().stream().map(User::getId).collect(Collectors.toList());
-            List<User> validStudents = userRepository.findAllById(studentIds);
-
-            if (validStudents.size() != studentIds.size()) {
-                response.put("error", "Uno o más estudiantes no existen en la base de datos.");
+        // Si el usuario es ADMIN (docente), asignarlo automáticamente como Teacher Leader
+        if (currentUser.getRole().getName() == RoleEnum.ADMIN) {
+            team.setTeacherLeader(currentUser);
+        } else if (currentUser.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+            // Validar teacherLeader asignado
+            if (team.getTeacherLeader() == null || team.getTeacherLeader().getId() == null) {
+                response.put("error", "El equipo debe tener un docente líder asignado.");
                 return ResponseEntity.badRequest().body(response);
             }
-            team.setStudents(validStudents);
+
+            // Buscar el docente líder
+            User teacherLeader = userRepository.findById(team.getTeacherLeader().getId()).orElse(null);
+            if (teacherLeader == null) {
+                response.put("error", "El docente líder no existe.");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            team.setTeacherLeader(teacherLeader);
+        } else {
+            return ResponseEntity.status(403).body(Map.of("error", "No tienes permisos para crear equipos."));
         }
 
         // Guardar el equipo
-        team.setTeacherLeader(teacherLeader);
         teamRepository.save(team);
 
         response.put("message", "Equipo creado exitosamente.");
         return ResponseEntity.ok(response);
     }
-
 
     @PutMapping("/{id}/addStudent")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -184,50 +173,45 @@ public class TeamController {
         return ResponseEntity.status(404).body("Equipo no encontrado.");
     }
 
-    @GetMapping("/byTeacher/{teacherId}")
+    @GetMapping("/byTeacher")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getTeamsByTeacherLeader(@PathVariable Long teacherId, Authentication authentication) {
+    public ResponseEntity<?> getTeamsByTeacher(Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
 
-        // Verifica si el usuario tiene permisos para ver todos los equipos
-        if (currentUser.getRole().getName() == RoleEnum.ADMIN || currentUser.getRole().getName() == RoleEnum.SUPER_ADMIN) {
+        // Superadmin ve todos los equipos
+        if (currentUser.getRole().getName() == RoleEnum.SUPER_ADMIN) {
             List<Team> allTeams = teamRepository.findAll();
-
-            List<Map<String, Object>> response = allTeams.stream()
-                    .map(team -> {
-                        Map<String, Object> teamMap = new HashMap<>();
-                        teamMap.put("id", team.getId());
-                        teamMap.put("name", team.getName());
-                        teamMap.put("description", team.getDescription());
-                        return teamMap;
-                    })
-                    .toList();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(allTeams.stream().map(team -> Map.of(
+                    "id", team.getId(),
+                    "name", team.getName(),
+                    "description", team.getDescription(),
+                    "avatarId", team.getAvatarId(),
+                    "teacherLeader", Map.of(
+                            "name", team.getTeacherLeader().getName(),
+                            "lastname", team.getTeacherLeader().getLastname()
+                    )
+            )).toList());
         }
 
-        // Si es un usuario normal, filtra por su ID de líder docente
-        List<Team> teams = teamRepository.findByTeacherLeader_Id(teacherId);
-
-        if (teams.isEmpty()) {
-            return ResponseEntity.status(404).body("No se encontraron equipos para este docente líder.");
+        // Docente (role: ADMIN) solo ve sus propios equipos
+        if (currentUser.getRole().getName() == RoleEnum.ADMIN) {
+            List<Team> teams = teamRepository.findByTeacherLeader_Id(currentUser.getId());
+            if (teams.isEmpty()) {
+                return ResponseEntity.status(404).body("No se encontraron equipos para este docente.");
+            }
+            return ResponseEntity.ok(teams.stream().map(team -> Map.of(
+                    "id", team.getId(),
+                    "name", team.getName(),
+                    "description", team.getDescription(),
+                    "avatarId", team.getAvatarId(),
+                    "teacherLeader", Map.of(
+                            "name", team.getTeacherLeader().getName(),
+                            "lastname", team.getTeacherLeader().getLastname()
+                    )
+            )).toList());
         }
 
-        List<Map<String, Object>> response = teams.stream()
-                .map(team -> Map.of(
-                        "id", team.getId(),
-                        "name", team.getName(),
-                        "description", team.getDescription(),
-                        "avatarId", team.getAvatarId() != null ? team.getAvatarId() : 0,
-                        "teacherLeader", team.getTeacherLeader() != null ? Map.of(
-                                "name", team.getTeacherLeader().getName() != null ? team.getTeacherLeader().getName() : "N/A",
-                                "lastname", team.getTeacherLeader().getLastname() != null ? team.getTeacherLeader().getLastname() : "N/A"
-                        ) : null
-                ))
-                .toList();
-
-        return ResponseEntity.ok(response);
-
+        return ResponseEntity.status(403).body("No tienes permisos para acceder a esta información.");
     }
 
 
@@ -251,40 +235,48 @@ public class TeamController {
     public ResponseEntity<?> getAllTeams(Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
 
+        List<Map<String, Object>> response;
+
         if (currentUser.getRole().getName() == RoleEnum.ADMIN || currentUser.getRole().getName() == RoleEnum.SUPER_ADMIN) {
             List<Team> allTeams = teamRepository.findAll();
 
-            List<Map<String, Object>> response = allTeams.stream()
-                    .map(team -> {
-                        Map<String, Object> teamMap = new HashMap<>();
-                        teamMap.put("id", team.getId());
-                        teamMap.put("name", team.getName());
-                        teamMap.put("description", team.getDescription());
-                        return teamMap;
-                    })
+            response = allTeams.stream()
+                    .map(team -> Map.of(
+                            "id", team.getId(),
+                            "name", team.getName(),
+                            "description", team.getDescription(),
+                            "avatarId", team.getAvatarId() != null ? team.getAvatarId() : 0,
+                            "teacherLeader", team.getTeacherLeader() != null ? Map.of(
+                                    "id", team.getTeacherLeader().getId(),
+                                    "name", team.getTeacherLeader().getName(),
+                                    "lastname", team.getTeacherLeader().getLastname()
+                            ) : null
+                    ))
                     .toList();
+        } else {
+            List<Team> userTeams = teamRepository.findByTeacherLeader_Id(currentUser.getId());
 
-            return ResponseEntity.ok(response);
+            if (userTeams.isEmpty()) {
+                return ResponseEntity.status(404).body("No se encontraron equipos.");
+            }
+
+            response = userTeams.stream()
+                    .map(team -> Map.of(
+                            "id", team.getId(),
+                            "name", team.getName(),
+                            "description", team.getDescription(),
+                            "avatarId", team.getAvatarId() != null ? team.getAvatarId() : 0,
+                            "teacherLeader", Map.of(
+                                    "id", currentUser.getId(),
+                                    "name", currentUser.getName(),
+                                    "lastname", currentUser.getLastname()
+                            )
+                    ))
+                    .toList();
         }
-
-        // Si es un usuario normal, filtrar por equipos donde es docente líder
-        List<Team> userTeams = teamRepository.findByTeacherLeader_Id(currentUser.getId());
-
-        if (userTeams.isEmpty()) {
-            return ResponseEntity.status(404).body("No se encontraron equipos.");
-        }
-
-        List<Map<String, Object>> response = userTeams.stream()
-                .map(team -> {
-                    Map<String, Object> teamMap = new HashMap<>();
-                    teamMap.put("id", team.getId());
-                    teamMap.put("name", team.getName());
-                    teamMap.put("description", team.getDescription());
-                    return teamMap;
-                })
-                .toList();
 
         return ResponseEntity.ok(response);
     }
+
 
 }
